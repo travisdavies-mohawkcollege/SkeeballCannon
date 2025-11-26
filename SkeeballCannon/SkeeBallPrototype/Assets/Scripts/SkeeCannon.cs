@@ -4,7 +4,7 @@ public class SkeeCannon : MonoBehaviour
 {
     public GameObject ballPrefab;
     public Transform firePoint;
-    public float shootForce = 15f;
+    [SerializeField]public float shootForce = 15f;
 
     public float mouseSensitivity = 3f;
     public float minPitch = -30f;   // how far down you can aim

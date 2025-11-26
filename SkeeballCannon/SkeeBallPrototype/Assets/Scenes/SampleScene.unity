@@ -149,7 +149,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -1.9782889, y: 7.4748, z: -13.879679}
-  m_LocalScale: {x: 1.0177, y: 1.0177, z: 1.4883862}
+  m_LocalScale: {x: 1.0177, y: 1.0177, z: 0.9675403}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -485,6 +485,7 @@ MonoBehaviour:
   windForceVector: {x: 0, y: 0, z: 0}
   windForce: 0
   clampedForce: 0
+  maxWindForce: 15
   windVFX: {fileID: 1358141589}
 --- !u!4 &419857997
 Transform:
@@ -679,7 +680,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ballPrefab: {fileID: 4254790720437165490, guid: e4998f5217c24a540a5885d73d9b8c20, type: 3}
   firePoint: {fileID: 1455704477}
-  shootForce: 15
+  shootForce: 150
   mouseSensitivity: 3
   minPitch: -30
   maxPitch: 45

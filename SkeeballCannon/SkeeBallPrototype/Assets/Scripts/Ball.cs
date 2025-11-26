@@ -22,7 +22,7 @@ public class Ball : MonoBehaviour
         if(inWind)
         {
             rb.AddForce(winds.windForceVector);
-            Debug.Log("applying wind to ball!");
+            //Debug.Log("applying wind to ball!");
         }
     }
 

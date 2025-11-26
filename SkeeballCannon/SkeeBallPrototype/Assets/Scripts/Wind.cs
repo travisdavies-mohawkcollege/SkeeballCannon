@@ -13,6 +13,7 @@ public class Wind : MonoBehaviour
     public Vector3 windForceVector;
     public float windForce;
     public float clampedForce;
+    [SerializeField]public float maxWindForce = 15f;
     [SerializeField]public ParticleSystem windVFX;
 
 
@@ -44,9 +45,9 @@ public class Wind : MonoBehaviour
         windDir.y = randomY;
         windDir.z = randomZ;
         //Make random wind force.
-        windForce = Random.Range(0f, 8f);
+        windForce = Random.Range(0f, maxWindForce);
         //Put the force into an appropriate range for particle effect speed.
-        clampedForce = (((windForce - 0) * (35-5)) / (8 - 0)) +5;
+        clampedForce = (((windForce - 0) * (35-5)) / (maxWindForce - 0)) +5;
         Debug.Log("Wind Force is:" +windForce+ " Clamped Force is: " + clampedForce);
         //Access main properties of wind VFX.
         var main = windVFX.main;
