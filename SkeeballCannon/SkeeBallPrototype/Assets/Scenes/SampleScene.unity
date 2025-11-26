@@ -679,7 +679,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ballPrefab: {fileID: 4254790720437165490, guid: e4998f5217c24a540a5885d73d9b8c20, type: 3}
   firePoint: {fileID: 1455704477}
-  shootForce: 15
+  shootForce: 150
   mouseSensitivity: 3
   minPitch: -30
   maxPitch: 45
