@@ -1,55 +1,95 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SkeeCannon : MonoBehaviour
 {
+    [Header("Ball Settings")]
     public GameObject ballPrefab;
     public Transform firePoint;
-    [SerializeField]public float shootForce = 15f;
+    public float shootForce = 15f;
 
+    [Header("Cooldown Settings")]
+    public float cooldownTime = 2f;
+    private float cooldownTimer = 0f;
+    public Slider cooldownSlider;
+
+    [Header("Mouse Settings")]
     public float mouseSensitivity = 3f;
-    public float minPitch = -30f;   // how far down you can aim
-    public float maxPitch = 45f;    // how far up you can aim
+    public float minPitch = -30f;
+    public float maxPitch = 45f;
 
-    float yaw;      // turning left/right
-    float pitch;    // aiming up/down
+    float yaw;
+    float pitch;
 
     void Start()
     {
-        // lock the mouse so we can use it to aim
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // start from the current rotation of the cannon
         Vector3 start = transform.eulerAngles;
         yaw = start.y;
         pitch = start.x;
+
+        if (cooldownSlider != null)
+        {
+            cooldownSlider.maxValue = cooldownTime;
+            cooldownSlider.value = cooldownTime;
+        }
     }
 
     void Update()
     {
-        // read mouse movement each frame
-        float mouseX = Input.GetAxis("Mouse X");  // left/right mouse movement
-        float mouseY = Input.GetAxis("Mouse Y");  // up/down mouse movement
+        HandleAim();
+        HandleCooldown();
+        HandleShoot();
+    }
 
-        // add mouse movement to yaw (horizontal rotation)
+    void HandleAim()
+    {
+        // get mouse movement
+        float mouseX = Input.GetAxis("Mouse X");
+        float mouseY = Input.GetAxis("Mouse Y");
+
+        // update yaw and pitch
         yaw += mouseX * mouseSensitivity;
-
-        // add mouse movement to pitch (vertical rotation)
-        // subtract so "mouse up" makes cannon aim up
         pitch -= mouseY * mouseSensitivity;
 
-        // stop the cannon from going too far up/down
+        // clamp vertical rotation
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
-        // apply the rotation to the whole cannon
+        // apply rotation
         transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+    }
 
-        // shoot when left mouse button is pressed
+    void HandleCooldown()
+    {
+        // timer counts upward until it reaches cooldownTime
+        if (cooldownTimer < cooldownTime)
+            cooldownTimer += Time.deltaTime;
+
+        // update slider display
+        if (cooldownSlider != null)
+            cooldownSlider.value = cooldownTimer;
+    }
+
+    void HandleShoot()
+    {
+        // cannot shoot if timer is not full
+        if (cooldownTimer < cooldownTime)
+            return;
+
+        // shoot on click
         if (Input.GetMouseButtonDown(0))
         {
             GameObject ball = Instantiate(ballPrefab, firePoint.position, firePoint.rotation);
             Rigidbody rb = ball.GetComponent<Rigidbody>();
             rb.AddForce(firePoint.forward * shootForce, ForceMode.Impulse);
+
+            // reset cooldown
+            cooldownTimer = 0f;
+
+            if (cooldownSlider != null)
+                cooldownSlider.value = 0f;
         }
     }
 }
