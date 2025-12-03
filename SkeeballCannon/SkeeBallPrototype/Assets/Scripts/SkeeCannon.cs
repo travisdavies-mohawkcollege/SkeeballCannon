@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class SkeeCannon : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class SkeeCannon : MonoBehaviour
     [Header("Cooldown")]
     public float cooldownTime = 2f;
     float cooldownTimer = 0f;
-    public Slider cooldownSlider; // 1 = ready, 0 = cooling
+    public Slider cooldownSlider;   // 1 = ready, 0 = cooling
 
     [Header("Aim")]
     public float mouseSensitivity = 3f;
@@ -30,6 +31,11 @@ public class SkeeCannon : MonoBehaviour
     [Header("Cameras")]
     [SerializeField] Camera mainCamera;
     [SerializeField] Camera replayCamera;
+
+    [Header("Shot Limit")]
+    public int maxShots = 7;
+    int shotsRemaining;
+    public TMP_Text shotsText;      // shows remaining shots
 
     GameObject lastBall;
     SkeeBallReplay lastReplay;
@@ -54,14 +60,13 @@ public class SkeeCannon : MonoBehaviour
         }
 
         if (!mainCamera)
-        {
             mainCamera = Camera.main;
-            Debug.Log("SkeeCannon: mainCamera was null, assigned Camera.main");
-        }
 
         if (mainCamera) mainCamera.enabled = true;
         if (replayCamera) replayCamera.enabled = false;
-        else Debug.LogWarning("SkeeCannon: replayCamera not assigned");
+
+        shotsRemaining = maxShots;
+        UpdateShotsUI();
     }
 
     void Update()
@@ -89,8 +94,14 @@ public class SkeeCannon : MonoBehaviour
         if (cooldownTimer > 0f)
             return;
 
+        if (shotsRemaining <= 0)
+            return;
+
         if (Input.GetMouseButtonDown(0))
         {
+            shotsRemaining--;
+            UpdateShotsUI();
+
             GameObject ball = Instantiate(ballPrefab, firePoint.position, firePoint.rotation);
 
             Rigidbody rb = ball.GetComponent<Rigidbody>();
@@ -106,14 +117,7 @@ public class SkeeCannon : MonoBehaviour
             lastBall = ball;
             lastReplay = ball.GetComponent<SkeeBallReplay>();
             if (lastReplay)
-            {
                 lastReplay.StartRecording();
-                Debug.Log("SkeeCannon: Started recording replay for new ball");
-            }
-            else
-            {
-                Debug.LogWarning("SkeeCannon: spawned ball missing SkeeBallReplay");
-            }
 
             cooldownTimer = cooldownTime;
 
@@ -152,27 +156,15 @@ public class SkeeCannon : MonoBehaviour
         if (!Input.GetKeyDown(KeyCode.R))
             return;
 
-        Debug.Log($"SkeeCannon: R pressed. replayActive={replayActive}, lastBall={(lastBall ? lastBall.name : "null")}, lastReplay={(lastReplay ? "ok" : "null")}");
-
         if (!replayActive)
         {
             if (lastReplay != null && lastBall != null)
             {
                 lastReplay.StartReplay();
-
                 replayActive = true;
 
                 if (mainCamera) mainCamera.enabled = false;
-                else Debug.LogWarning("SkeeCannon: mainCamera not assigned");
-
                 if (replayCamera) replayCamera.enabled = true;
-                else Debug.LogWarning("SkeeCannon: replayCamera not assigned");
-
-                Debug.Log($"SkeeCannon: switched TO replay cam. main={mainCamera.enabled}, replay={replayCamera.enabled}");
-            }
-            else
-            {
-                Debug.LogWarning("SkeeCannon: cannot start replay, lastBall or lastReplay null");
             }
         }
         else
@@ -184,8 +176,12 @@ public class SkeeCannon : MonoBehaviour
 
             if (mainCamera) mainCamera.enabled = true;
             if (replayCamera) replayCamera.enabled = false;
-
-            Debug.Log($"SkeeCannon: switched TO main cam. main={mainCamera.enabled}, replay={replayCamera.enabled}");
         }
+    }
+
+    void UpdateShotsUI()
+    {
+        if (shotsText)
+            shotsText.text = "Shots: " + shotsRemaining;
     }
 }
