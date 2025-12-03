@@ -8,13 +8,13 @@ public class SkeeCannon : MonoBehaviour
     public Transform firePoint;
     public float projectileMassLbs = 12f;
     const float poundsToKg = 0.45359237f;
-    public float muzzleVelocity = 30f;      // base speed
-    public float powerMultiplier = 4f;      // extra punch
+    public float muzzleVelocity = 30f;
+    public float powerMultiplier = 4f;
 
     [Header("Cooldown")]
     public float cooldownTime = 2f;
-    float cooldownTimer = 0f;               // 0 = ready
-    public Slider cooldownSlider;           // 1 = ready, 0 = cooling
+    float cooldownTimer = 0f;
+    public Slider cooldownSlider; // 1 = ready, 0 = cooling
 
     [Header("Aim")]
     public float mouseSensitivity = 3f;
@@ -28,12 +28,12 @@ public class SkeeCannon : MonoBehaviour
     public AudioSource fireAudio;
 
     [Header("Cameras")]
-    public Camera mainCamera;
-    public Camera replayCamera;
-    public ReplayCameraController replayCamController;
+    [SerializeField] Camera mainCamera;
+    [SerializeField] Camera replayCamera;
 
     GameObject lastBall;
     SkeeBallReplay lastReplay;
+    bool replayActive = false;
 
     void Start()
     {
@@ -53,8 +53,15 @@ public class SkeeCannon : MonoBehaviour
             cooldownSlider.value = 1f;
         }
 
+        if (!mainCamera)
+        {
+            mainCamera = Camera.main;
+            Debug.Log("SkeeCannon: mainCamera was null, assigned Camera.main");
+        }
+
         if (mainCamera) mainCamera.enabled = true;
         if (replayCamera) replayCamera.enabled = false;
+        else Debug.LogWarning("SkeeCannon: replayCamera not assigned");
     }
 
     void Update()
@@ -63,7 +70,6 @@ public class SkeeCannon : MonoBehaviour
         HandleShoot();
         HandleCooldown();
         HandleReplayInput();
-        HandleReplayCameraExit();
     }
 
     void HandleAim()
@@ -93,7 +99,6 @@ public class SkeeCannon : MonoBehaviour
                 float massKg = projectileMassLbs * poundsToKg;
                 rb.mass = massKg;
 
-                // impulse = mass * velocity * power multiplier
                 float impulse = massKg * muzzleVelocity * powerMultiplier;
                 rb.AddForce(firePoint.forward * impulse, ForceMode.Impulse);
             }
@@ -101,7 +106,14 @@ public class SkeeCannon : MonoBehaviour
             lastBall = ball;
             lastReplay = ball.GetComponent<SkeeBallReplay>();
             if (lastReplay)
+            {
                 lastReplay.StartRecording();
+                Debug.Log("SkeeCannon: Started recording replay for new ball");
+            }
+            else
+            {
+                Debug.LogWarning("SkeeCannon: spawned ball missing SkeeBallReplay");
+            }
 
             cooldownTimer = cooldownTime;
 
@@ -137,24 +149,43 @@ public class SkeeCannon : MonoBehaviour
 
     void HandleReplayInput()
     {
-        if (Input.GetKeyDown(KeyCode.R) && lastReplay && lastBall)
+        if (!Input.GetKeyDown(KeyCode.R))
+            return;
+
+        Debug.Log($"SkeeCannon: R pressed. replayActive={replayActive}, lastBall={(lastBall ? lastBall.name : "null")}, lastReplay={(lastReplay ? "ok" : "null")}");
+
+        if (!replayActive)
         {
-            lastReplay.StartReplay();
+            if (lastReplay != null && lastBall != null)
+            {
+                lastReplay.StartReplay();
 
-            if (replayCamController)
-                replayCamController.SetTarget(lastBall.transform);
+                replayActive = true;
 
-            if (mainCamera) mainCamera.enabled = false;
-            if (replayCamera) replayCamera.enabled = true;
+                if (mainCamera) mainCamera.enabled = false;
+                else Debug.LogWarning("SkeeCannon: mainCamera not assigned");
+
+                if (replayCamera) replayCamera.enabled = true;
+                else Debug.LogWarning("SkeeCannon: replayCamera not assigned");
+
+                Debug.Log($"SkeeCannon: switched TO replay cam. main={mainCamera.enabled}, replay={replayCamera.enabled}");
+            }
+            else
+            {
+                Debug.LogWarning("SkeeCannon: cannot start replay, lastBall or lastReplay null");
+            }
         }
-    }
-
-    void HandleReplayCameraExit()
-    {
-        if (replayCamera && replayCamera.enabled && lastReplay && !lastReplay.IsReplaying)
+        else
         {
+            if (lastReplay != null)
+                lastReplay.StopReplay();
+
+            replayActive = false;
+
             if (mainCamera) mainCamera.enabled = true;
-            replayCamera.enabled = false;
+            if (replayCamera) replayCamera.enabled = false;
+
+            Debug.Log($"SkeeCannon: switched TO main cam. main={mainCamera.enabled}, replay={replayCamera.enabled}");
         }
     }
 }

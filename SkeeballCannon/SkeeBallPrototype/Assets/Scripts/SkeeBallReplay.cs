@@ -4,10 +4,10 @@ using UnityEngine;
 public class SkeeBallReplay : MonoBehaviour
 {
     public float maxRecordTime = 5f;
+    public float replayDuration = 5f;
     public float minSpeedToRecord = 0.1f;
 
     List<Vector3> positions;
-    List<Quaternion> rotations;
 
     public bool IsRecording { get; private set; }
     public bool IsReplaying { get; private set; }
@@ -25,7 +25,6 @@ public class SkeeBallReplay : MonoBehaviour
     public void StartRecording()
     {
         positions = new List<Vector3>();
-        rotations = new List<Quaternion>();
 
         recordTimer = 0f;
         replayTimer = 0f;
@@ -37,7 +36,10 @@ public class SkeeBallReplay : MonoBehaviour
     public void StartReplay()
     {
         if (positions == null || positions.Count == 0)
+        {
+            Debug.LogWarning("Replay: no recorded positions, cannot start replay");
             return;
+        }
 
         IsRecording = false;
         IsReplaying = true;
@@ -49,6 +51,8 @@ public class SkeeBallReplay : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
             rb.isKinematic = true;
         }
+
+        Debug.Log("Replay: START");
     }
 
     public void StopReplay()
@@ -57,6 +61,8 @@ public class SkeeBallReplay : MonoBehaviour
 
         if (rb)
             rb.isKinematic = false;
+
+        Debug.Log("Replay: STOP");
     }
 
     void FixedUpdate()
@@ -76,9 +82,7 @@ public class SkeeBallReplay : MonoBehaviour
         }
 
         recordTimer += Time.fixedDeltaTime;
-
         positions.Add(transform.position);
-        rotations.Add(transform.rotation);
 
         if (recordTimer >= maxRecordTime)
             IsRecording = false;
@@ -88,18 +92,28 @@ public class SkeeBallReplay : MonoBehaviour
     {
         replayTimer += Time.fixedDeltaTime;
 
-        float stepTime = Time.fixedDeltaTime;
-        int index = Mathf.FloorToInt(replayTimer / stepTime);
+        float t = Mathf.Clamp01(replayTimer / replayDuration);
 
-        if (index >= 0 && index < positions.Count)
-        {
-            transform.position = positions[index];
-            transform.rotation = rotations[index];
-        }
-        else
+        int lastIndex = positions.Count - 1;
+        if (lastIndex <= 0)
         {
             StopReplay();
+            return;
         }
+
+        float floatIndex = t * lastIndex;
+        int indexA = Mathf.FloorToInt(floatIndex);
+        int indexB = Mathf.Min(indexA + 1, lastIndex);
+
+        float lerpT = floatIndex - indexA;
+
+        Vector3 a = positions[indexA];
+        Vector3 b = positions[indexB];
+
+        transform.position = Vector3.Lerp(a, b, lerpT);
+
+        if (replayTimer >= replayDuration)
+            StopReplay();
     }
 
     void OnCollisionEnter(Collision collision)
