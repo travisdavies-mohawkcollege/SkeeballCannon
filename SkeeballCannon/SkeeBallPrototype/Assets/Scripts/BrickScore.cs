@@ -15,7 +15,7 @@ public class BrickScore : MonoBehaviour
         float impactForce = collision.relativeVelocity.magnitude;
 
         // scoring logic
-        if (collision.collider.CompareTag("Ball"))
+        if (collision.collider.CompareTag("SkeeBall"))
         {
             if (!alreadyScored)
             {
