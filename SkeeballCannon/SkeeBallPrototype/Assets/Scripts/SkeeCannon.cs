@@ -6,11 +6,16 @@ public class SkeeCannon : MonoBehaviour
 {
     [Header("Ball Physics")]
     public GameObject ballPrefab;
+    public GameObject explosiveBallPrefab;
     public Transform firePoint;
     public float projectileMassLbs = 12f;
     const float poundsToKg = 0.45359237f;
     public float muzzleVelocity = 30f;
     public float powerMultiplier = 4f;
+
+    [Header("Explosive Ball")]
+    public bool shootBomb = false;
+    public GameObject loadedShot;
 
     [Header("Cooldown")]
     public float cooldownTime = 2f;
@@ -71,6 +76,7 @@ public class SkeeCannon : MonoBehaviour
 
     void Update()
     {
+        AmmoSwitcher();
         HandleAim();
         HandleShoot();
         HandleCooldown();
@@ -101,8 +107,10 @@ public class SkeeCannon : MonoBehaviour
         {
             shotsRemaining--;
             UpdateShotsUI();
+            BallLoader();
 
-            GameObject ball = Instantiate(ballPrefab, firePoint.position, firePoint.rotation);
+            
+            GameObject ball = Instantiate(loadedShot, firePoint.position, firePoint.rotation);
 
             Rigidbody rb = ball.GetComponent<Rigidbody>();
             if (rb)
@@ -183,5 +191,32 @@ public class SkeeCannon : MonoBehaviour
     {
         if (shotsText)
             shotsText.text = "Shots: " + shotsRemaining;
+    }
+
+    void AmmoSwitcher()
+    {
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            if(!shootBomb)
+            {
+                shootBomb = true;
+            }
+            else
+            {
+                shootBomb = false;
+            }
+        }
+    }
+
+    void BallLoader()
+    {
+        if(shootBomb)
+        {
+            loadedShot = explosiveBallPrefab;
+        }
+        else
+        {
+            loadedShot = ballPrefab;
+        }
     }
 }

@@ -12396,7 +12396,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335097039}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &335097042
 Camera:
   m_ObjectHideFlags: 0
@@ -29999,10 +29999,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballPrefab: {fileID: 4254790720437165490, guid: e4998f5217c24a540a5885d73d9b8c20, type: 3}
+  explosiveBallPrefab: {fileID: 4254790720437165490, guid: b9ea104e65eddf340804e17fa726d535, type: 3}
   firePoint: {fileID: 1455704477}
   projectileMassLbs: 12
   muzzleVelocity: 20
   powerMultiplier: 4
+  shootBomb: 0
+  loadedShot: {fileID: 0}
   cooldownTime: 3
   cooldownSlider: {fileID: 1111451220}
   mouseSensitivity: 3
@@ -88751,9 +88754,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de38e08ea5530f440bc0d794feab3acc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  offset: {x: 0, y: 2, z: -6}
-  followSpeed: 8
 --- !u!4 &2092177671
 Transform:
   m_ObjectHideFlags: 0
