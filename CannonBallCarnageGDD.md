@@ -73,6 +73,10 @@ Have a bit of an indicator to the strength/intensity of wind"
 ## How Our Concept Changed ##
 The original concept for CannonBallCarnage was SkeeBall Cannon, with a focus on accurate shots making it into a hole or cup. After placing some rigidbody objects within the scene to show how the cannon ball physics were working, we realized something: Blasting rigidbodys around was far more entertaining than attempting to score into the cups. Some of our feedback recommended this approach as well, commenting on the fun of destroying things with the cannon. This design switch allowed us to still focus on the main concept, the cannon, which gave us room to explore more entertaining game loops without starting from scratch.
 
+## GDD ##
+
+https://www.youtube.com/watch?v=VCLjuHMhCy0 
+
 !(/images/GDDimage.png)
 
 ## Metric References/Research ##
